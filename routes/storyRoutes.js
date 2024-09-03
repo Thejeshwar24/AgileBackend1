@@ -1,5 +1,5 @@
 import express from 'express';
-import { createStory, getStories ,updateStory,getStoryById,deleteStory,getStoriesByUserId} from '../controllers/storyController.js';
+import { createStory, getStories ,updateStory,getStoryById,deleteStory} from '../controllers/storyController.js';
 
 const router = express.Router();
 
@@ -9,10 +9,4 @@ router.get('/', getStories);
 router.get('/:id', getStoryById);
 router.put('/:id', updateStory);
 router.delete('/:id', deleteStory);
-
-router.get('/user/:userId', getStoriesByUserId);
-
-router.get('/search/:name', getUsersByName);
-
-
 export default router;
