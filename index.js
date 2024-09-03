@@ -30,6 +30,12 @@ app.use('/api/users', userRoutes);
 app.use('/api', assignmentRoutes);
 
 
+app.get("/",(req,res)=>{
+    res.send("backend")
+
+})
+
+
 
 app.use('/api/owners', ownerRoutes);
 
