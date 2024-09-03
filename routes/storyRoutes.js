@@ -12,4 +12,7 @@ router.delete('/:id', deleteStory);
 
 router.get('/user/:userId', getStoriesByUserId);
 
+router.get('/search/:name', getUsersByName);
+
+
 export default router;

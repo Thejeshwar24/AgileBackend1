@@ -51,3 +51,16 @@ export const deleteUser = async (req, res) => {
         res.status(500).json({ message: 'Error deleting user', error });
     }
 };
+
+
+//
+
+export const getUsersByName = async (req, res) => {
+    try {
+        const users = await User.find({ name: new RegExp(req.params.name, 'i') });
+        if (!users.length) return res.status(404).json({ message: 'No users found with this name' });
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching users by name', error });
+    }
+};
