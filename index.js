@@ -38,7 +38,6 @@ app.get("/",(req,res)=>{
 
 
 app.use('/api/owners', ownerRoutes);
-app.use('/assignments/',assignmentRoutes)
 
 // Database Connection and Server Start
 const port = process.env.PORT || 5002;
