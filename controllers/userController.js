@@ -57,14 +57,17 @@ export const deleteUser = async (req, res) => {
 
 export const getUsersByName = async (req, res) => {
     try {
-        const users = await User.find({ name: new RegExp(req.params.name, 'i') });
+        const { name } = req.query;
+        if (!name) return res.status(400).json({ message: 'Name query parameter is required' });
+
+        const users = await User.find({ name: new RegExp(name, 'i') });
         if (!users.length) return res.status(404).json({ message: 'No users found with this name' });
+        
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching users by name', error });
     }
 };
-
 
 
 export const getStoriesByUserId = async (req, res) => {
