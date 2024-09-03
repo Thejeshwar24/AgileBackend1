@@ -11,6 +11,6 @@ router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 
 
-router.get('/search/', getUsersByName);
+router.get('/search/:name', getUsersByName);
 
 export default router;
