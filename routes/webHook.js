@@ -6,7 +6,7 @@ import Task from './models/Task.js';
 const router = express.Router();
 
 // Webhook for checking user assignments
-router.post('/webhook/checkAssignments', async (req, res) => {
+router.post('/webhook/checkAssignments/', async (req, res) => {
     const { name } = req.body;
 
     try {

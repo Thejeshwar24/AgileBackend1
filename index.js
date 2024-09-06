@@ -28,17 +28,13 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/userGroups', userGroupRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', assignmentRoutes);
+app.use('/api/owners', ownerRoutes);
 
 
 app.get("/",(req,res)=>{
     res.send("backend")
 
 })
-
-
-
-app.use('/api/owners', ownerRoutes);
-
 // Database Connection and Server Start
 const port = process.env.PORT || 5002;
 const conn = process.env.URI

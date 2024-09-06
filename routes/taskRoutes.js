@@ -8,9 +8,9 @@ router.get('/', getTasks);
 //
 router.get('/:id', getTaskById);
 router.put('/:id', updateTask);
+router.get('/user/:userId', getTasksByUserId);
 router.delete('/:id', deleteTask);
 
 //
-router.get('/user/:userId', getTasksByUserId);
 
 export default router;

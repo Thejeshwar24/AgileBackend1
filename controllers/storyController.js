@@ -51,3 +51,19 @@ export const deleteStory = async (req, res) => {
     }
 };
 
+// user name search 
+
+// Get stories by assigned user name using query parameter
+export const getStoriesByAssignedUserName = async (req, res) => {
+    try {
+        const { userName } = req.query;
+        if (!userName) return res.status(400).json({ message: 'User name query parameter is required' });
+
+        const stories = await Story.find({ assignedUser: userName });
+        if (!stories.length) return res.status(404).json({ message: 'No stories found for this user' });
+
+        res.status(200).json(stories);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching stories by user name', error });
+    }
+};

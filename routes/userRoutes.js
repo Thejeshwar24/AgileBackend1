@@ -8,9 +8,9 @@ router.get('/', getUsers);
 //
 router.get('/:id', getUserById);
 router.put('/:id', updateUser);
+router.get('/search/:name', getUsersByName);
 router.delete('/:id', deleteUser);
 
 
-router.get('/search/:name', getUsersByName);
 
 export default router;

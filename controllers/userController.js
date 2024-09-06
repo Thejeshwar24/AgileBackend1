@@ -7,6 +7,9 @@ export const createUser = async (req, res) => {
         res.status(201).send(user);
     } catch (err) {
         res.status(400).send({ error: err.message });
+        err.status = 400;
+        err.message = 'Failed to create user';
+        next(err);
     }
 };
 
@@ -16,6 +19,10 @@ export const getUsers = async (req, res) => {
         res.status(200).send(users);
     } catch (err) {
         res.status(500).send({ error: err.message });
+        res.status(400).send({ error: err.message });
+        err.status = 400;
+        err.message = 'Failed to get user';
+        next(err);
     }
 };
 
