@@ -1,4 +1,5 @@
 import Task from '../models/task.js';
+import User from '../models/user.js';
 
 export const createTask = async (req, res) => {
     try {
@@ -55,28 +56,39 @@ export const deleteTask = async (req, res) => {
 
 
 //
-export const getTasksByUserId = async (req, res) => {
+export const getTasksByUserName = async (req, res, next) => {
     try {
-        const userId = req.params.userId;
+        const { userName } = req.query;  // Fetch the userName from the query parameter
 
-        // Find tasks assigned to the user by userId string
-        const tasks = await Task.find({ assignedUser: userId })
-            .populate({
-                path: 'storyId',
-                select: 'storyName description' // Select only the storyName and description fields
-            })
-            .select('taskName description priority duration startDate endDate'); // Select the fields to display
-
-        if (!tasks.length) {
-            return res.status(404).json({ message: 'No tasks found for this user' });
+        //  Check if the user exists by userName
+        const user = await User.findOne({ name: userName });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: `User with the name "${userName}" not found`
+            });
         }
 
-        res.status(200).json(tasks);
-    } catch (error) {
-        // Log the error for debugging purposes
-        console.error('Error fetching tasks:', error);
+        // Fetch all tasks assigned to the user's ID
+        const tasks = await Task.find({ assignedUser: user._id });
 
-        // Return a more detailed error message
-        res.status(500).json({ message: 'Error fetching tasks. Please try again later.', error });
+        //  If no tasks are assigned, return an appropriate message
+        if (tasks.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: `No tasks assigned to user "${userName}".`,
+                data: []
+            });
+        }
+
+        //  Return the tasks assigned to the user
+        res.status(200).json({
+            success: true,
+            message: `Tasks assigned to user "${userName}" retrieved successfully.`,
+            data: tasks
+        });
+
+    } catch (error) {
+        next(error);
     }
 };
