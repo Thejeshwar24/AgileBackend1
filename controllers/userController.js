@@ -65,21 +65,21 @@ export const deleteUser = async (req, res) => {
 //
 export const checkUserExists = async (req, res, next) => {
     try {
-        const { userName } = req.params;
+        const { name } = req.query;  // Fetch userName from the query parameter
 
-        // Step 1: Check if the user exists by userName
-        const user = await User.findOne({ name: userName });
+        // Step 1: Check if the user exists by name
+        const user = await User.findOne({ name: name });
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: `User with the name "${userName}" not found`
+                message: `User with the name "${name}" not found`
             });
         }
 
-        // Step 2: If user exists, return success message
+        // Step 2: If the user exists, return success message
         res.status(200).json({
             success: true,
-            message: `User with the name "${userName}" exists`,
+            message: `User with the name "${name}" exists`,
             data: {
                 name: user.name,
                 email: user.email,
@@ -88,7 +88,6 @@ export const checkUserExists = async (req, res, next) => {
         });
 
     } catch (error) {
-        // Handle any errors
-        next(error);  // Pass error to the error handling middleware
+        next(error);  // Pass the error to the error handler middleware
     }
 };
