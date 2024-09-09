@@ -94,29 +94,3 @@ export const getTasksByUserName = async (req, res, next) => {
 };
 
 
-
-export const getTasksByName = async (req, res) => {
-    try {
-        console.log("Fetching tasks for user:", req.params.userName);  // Debug log
-
-        const { userName } = req.params;
-
-        // Step 1: Find the user by their name
-        const user = await User.findOne({ name: userName });
-        if (!user) {
-            return res.status(404).json({ message: `User with name "${userName}" not found` });
-        }
-
-        // Step 2: Fetch tasks assigned to the user
-        const tasks = await Task.find({ assignedUser: user._id }).populate('storyId');
-
-        // Step 3: Return the tasks
-        res.status(200).json({
-            success: true,
-            message: `Tasks assigned to user "${userName}" retrieved successfully.`,
-            data: tasks
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching tasks', error });
-    }
-};
