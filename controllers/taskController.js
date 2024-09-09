@@ -97,7 +97,9 @@ export const getTasksByUserName = async (req, res, next) => {
 
 export const getTasksByName = async (req, res) => {
     try {
-        const { userName } = req.params; // Fetch the userName from the URL parameter
+        console.log("Fetching tasks for user:", req.params.userName);  // Debug log
+
+        const { userName } = req.params;
 
         // Step 1: Find the user by their name
         const user = await User.findOne({ name: userName });
@@ -108,11 +110,7 @@ export const getTasksByName = async (req, res) => {
         // Step 2: Fetch tasks assigned to the user
         const tasks = await Task.find({ assignedUser: user._id }).populate('storyId');
 
-        // Step 3: Return the tasks, or return a message if no tasks are found
-        if (tasks.length === 0) {
-            return res.status(200).json({ message: `No tasks found for user "${userName}"`, data: [] });
-        }
-
+        // Step 3: Return the tasks
         res.status(200).json({
             success: true,
             message: `Tasks assigned to user "${userName}" retrieved successfully.`,
