@@ -3,8 +3,8 @@ import { createStory, getStories ,updateStory,getStoryById,deleteStory,getStorie
 
 const router = express.Router();
 
+router.get('/byUserName', getStoriesByAssignedUserName);
 router.post('/', createStory);
-router.get('/filterByAssignedUserName', getStoriesByAssignedUserName);
 router.get('/', getStories);
 //
 router.get('/:id', getStoryById);
