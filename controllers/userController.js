@@ -1,4 +1,6 @@
 import User from '../models/user.js';
+// import Story from '../models/story.js';
+// import Task from '../models/task.js';
 
 export const createUser = async (req, res) => {
     try {
@@ -27,15 +29,15 @@ export const getUsers = async (req, res) => {
 };
 
 
-export const getUserById = async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id).populate('userGroup');
-        if (!user) return res.status(404).json({ message: 'User not found' });
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching user', error });
-    }
-};
+// export const getUserById = async (req, res) => {
+//     try {
+//         const user = await User.findById(req.params.id).populate('userGroup');
+//         if (!user) return res.status(404).json({ message: 'User not found' });
+//         res.status(200).json(user);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Error fetching user', error });
+//     }
+// };
 
 // Update a User by ID
 export const updateUser = async (req, res) => {
@@ -61,36 +63,32 @@ export const deleteUser = async (req, res) => {
 
 
 //
-
-export const getUsersByName = async (req, res) => {
+export const checkUserExists = async (req, res, next) => {
     try {
-        const users = await User.find({ name: new RegExp(req.params.name, 'i') });
-        if (!users.length) return res.status(404).json({ message: 'No users found with this name' });
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching users by name', error });
-    }
-};
+        const { userName } = req.params;
 
-
-
-export const getStoriesByUserId = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-
-        // Find stories assigned to the user by userId string
-        const stories = await Story.find({ assignedUser: userId })
-            .populate({
-                path: 'epicId',
-                select: 'epicName description' // Select only the epicName and description fields
-            })
-            .select('storyName description priority duration startDate endDate'); // Select the fields to display
-
-        if (!stories.length) {
-            return res.status(404).json({ message: 'No stories found for this user' });
+        // Step 1: Check if the user exists by userName
+        const user = await User.findOne({ name: userName });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: `User with the name "${userName}" not found`
+            });
         }
-        res.status(200).json(stories);
+
+        // Step 2: If user exists, return success message
+        res.status(200).json({
+            success: true,
+            message: `User with the name "${userName}" exists`,
+            data: {
+                name: user.name,
+                email: user.email,
+                userGroup: user.userGroup
+            }
+        });
+
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching stories', error });
+        // Handle any errors
+        next(error);  // Pass error to the error handling middleware
     }
 };
