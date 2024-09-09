@@ -70,7 +70,7 @@ export const getTasksByUserName = async (req, res, next) => {
         }
 
         // Fetch all tasks assigned to the user's ID
-        const tasks = await Task.find({ assignedUser: user._id });
+        const tasks = await Task.find({ assignedUser: user.name });
 
         //  If no tasks are assigned, return an appropriate message
         if (tasks.length === 0) {
