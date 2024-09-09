@@ -3,7 +3,7 @@ import { createTask, getTasks,getTaskById,updateTask,deleteTask,getTasksByUserNa
 
 const router = express.Router();
 router.get('/byUserName', getTasksByUserName);
-router.get('/tasks/:userName', getTasksByUserName);
+router.get('/tasks/:userName', getTasksByName);
 
 
 router.post('/', createTask);
