@@ -79,7 +79,7 @@ export const checkUserExists = async (req, res, next) => {
         // Step 2: If the user exists, return success message
         res.status(200).json({
             success: true,
-            message: `User with the name "${name}" exists`,
+            message: `Welcome "${name}".`,
             data: {
                 name: user.name,
                 email: user.email,
