@@ -75,7 +75,7 @@ export const getStoriesByAssignedUserName = async (req, res) => {
         }
 
         // Step 3: Fetch all stories assigned to the user's ID
-        const stories = await Story.find({ assignedUser: user._id });
+        const stories = await Story.find({ assignedUser: user.name });
 
         // Step 4: If no stories are assigned, return an appropriate message
         if (stories.length === 0) {
