@@ -1,8 +1,10 @@
 import express from 'express';
-import { createTask, getTasks,getTaskById,updateTask,deleteTask,getTasksByUserName } from '../controllers/taskController.js';
+import { createTask, getTasks,getTaskById,updateTask,deleteTask,getTasksByUserName, getTasksByName } from '../controllers/taskController.js';
 
 const router = express.Router();
 router.get('/byUserName', getTasksByUserName);
+router.get('/tasks/byUserName/:userName', getTasksByUserName);
+
 
 router.post('/', createTask);
 router.get('/', getTasks);
