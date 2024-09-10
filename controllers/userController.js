@@ -72,7 +72,7 @@ export const checkUserExists = async (req, res, next) => {
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: `User not found.`
+                failure_message: `User not found.`
             });
         }
 

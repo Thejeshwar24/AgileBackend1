@@ -58,7 +58,7 @@ export const deleteTask = async (req, res) => {
 //
 export const getTasksByUserName = async (req, res, next) => {
     try {
-        const { userName, limit } = req.query;  // Fetch userName and limit from query parameters
+        const { userName } = req.query;  // Fetch the userName from the query parameter
 
         // Check if the user exists by userName
         const user = await User.findOne({ name: userName });
@@ -68,22 +68,30 @@ export const getTasksByUserName = async (req, res, next) => {
                 message: `User with the name "${userName}" not found`
             });
         }
-        const taskLimit = parseInt(limit) > 0 ? parseInt(limit) : 5;
 
-        // Fetch tasks assigned to the user's ID, limiting the results
-        const tasks = await Task.find({ assignedUser: user.name }).limit(taskLimit);
+        // Fetch tasks assigned to the user's ID that are NOT completed, limit to 5
+        const tasks = await Task.find({ 
+            assignedUser: user.name, 
+            status: { $ne: 'Completed' }  // Filter out tasks with status 'completed'
+        }).limit(5);
+
+        // If no tasks are assigned, return an appropriate message
         if (tasks.length === 0) {
             return res.status(200).json({
                 success: true,
-                message: `No tasks assigned to user "${userName}".`,
+                message: `No pending or in-progress tasks assigned to user "${userName}".`,
                 data: []
             });
         }
+
+        // Return the tasks assigned to the user
         res.status(200).json({
             success: true,
-            message: `Tasks assigned to user "${userName}" retrieved successfully.`,
+            message: `Tasks assigned to user ${userName} retrieved successfully.`,
+            totalTasksMessage: `${tasks.length}`,
             data: tasks
         });
+
     } catch (error) {
         next(error);
     }
