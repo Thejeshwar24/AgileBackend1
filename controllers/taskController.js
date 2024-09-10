@@ -98,9 +98,13 @@ export const getTasksByUserName = async (req, res, next) => {
 
         // Check if the API has been called 5 times for this user
         if (callCounterTracker[userName] >= 5) {
+            // Reset the counters after reaching 5 calls
+            taskIndexTracker[userName] = 0;  // Reset task index
+            callCounterTracker[userName] = 0;  // Reset call counter
+
             return res.status(200).json({
                 success: true,
-                message: `You have reached the maximum of 5 task retrievals for user "${userName}". No more tasks will be shown.`,
+                message: `You have reached the maximum of 5 task retrievals for user "${userName}". No more tasks will be shown. Counters have been reset.`,
                 data: []
             });
         }
