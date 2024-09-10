@@ -69,7 +69,6 @@ export const getUserInformationById = async (req, res) => {
         });
     }
 };
-
 // Update user information
 export const updateUserInformation = async (req, res) => {
     try {
