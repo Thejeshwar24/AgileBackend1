@@ -1,6 +1,10 @@
 import Task from '../models/task.js';
 import User from '../models/user.js';
 
+
+const taskIndexTracker = {};
+const callCounterTracker = {};  
+
 export const createTask = async (req, res) => {
     try {
         const task = new Task(req.body);
@@ -58,7 +62,7 @@ export const deleteTask = async (req, res) => {
 //
 export const getTasksByUserName = async (req, res, next) => {
     try {
-        const { userName } = req.query;  // Fetch the userName from the query parameter
+        const { userName } = req.query;  // Fetch userName from query parameters
 
         // Check if the user exists by userName
         const user = await User.findOne({ name: userName });
@@ -69,28 +73,62 @@ export const getTasksByUserName = async (req, res, next) => {
             });
         }
 
-        // Fetch tasks assigned to the user's ID that are NOT completed, limit to 5
+        // Fetch all tasks assigned to the user's ID that are NOT completed
         const tasks = await Task.find({ 
             assignedUser: user.name, 
-            status: { $ne: 'Completed' }  // Filter out tasks with status 'completed'
-        }).limit(5)
-        .select('taskName description priority startDate endDate');
+            status: { $ne: 'completed' }  // Filter out completed tasks
+        }).select('taskName description priority startDate endDate'); // Only fetch specific fields
 
-        // If no tasks are assigned, return an appropriate message
+        // Check if there are tasks
         if (tasks.length === 0) {
             return res.status(200).json({
                 success: true,
-                message: `No pending or in-progress tasks assigned to ${userName}.`,
+                message: `No pending or in-progress tasks assigned to user "${userName}".`,
                 data: []
             });
         }
 
-        // Return the tasks assigned to the user
+        // Initialize task index and call counter for this user if not already tracked
+        if (!taskIndexTracker[userName]) {
+            taskIndexTracker[userName] = 0;
+        }
+        if (!callCounterTracker[userName]) {
+            callCounterTracker[userName] = 0;
+        }
+
+        // Check if the API has been called 5 times for this user
+        if (callCounterTracker[userName] >= 5) {
+            return res.status(200).json({
+                success: true,
+                message: `You have reached the maximum of 5 task retrievals for user "${userName}". No more tasks will be shown.`,
+                data: []
+            });
+        }
+
+        // Get the current task index
+        let currentIndex = taskIndexTracker[userName];
+
+        // If the current index is greater than or equal to the number of tasks, return a message that all tasks have been displayed
+        if (currentIndex >= tasks.length) {
+            return res.status(200).json({
+                success: true,
+                message: `All tasks have been displayed for user "${userName}".`,
+                data: []  // No tasks are returned because all have been displayed
+            });
+        }
+
+        // Fetch the task at the current index
+        const task = tasks[currentIndex];
+
+        // Increment the task index and call counter for the next API call
+        taskIndexTracker[userName]++;
+        callCounterTracker[userName]++;
+
+        // Return the task
         res.status(200).json({
             success: true,
-            message: `Tasks assigned to user ${userName} retrieved successfully.`,
-            totalTasksMessage: `${tasks.length}`,
-            data: tasks
+            message: `Task ${currentIndex + 1} of ${tasks.length} assigned to user "${userName}" retrieved successfully.`,
+            data: task
         });
 
     } catch (error) {
