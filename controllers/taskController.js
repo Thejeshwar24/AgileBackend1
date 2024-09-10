@@ -73,13 +73,14 @@ export const getTasksByUserName = async (req, res, next) => {
         const tasks = await Task.find({ 
             assignedUser: user.name, 
             status: { $ne: 'Completed' }  // Filter out tasks with status 'completed'
-        }).limit(5);
+        }).limit(5)
+        .select('taskName description priority startDate endDate');
 
         // If no tasks are assigned, return an appropriate message
         if (tasks.length === 0) {
             return res.status(200).json({
                 success: true,
-                message: `No pending or in-progress tasks assigned to user "${userName}".`,
+                message: `No pending or in-progress tasks assigned to ${userName}.`,
                 data: []
             });
         }
