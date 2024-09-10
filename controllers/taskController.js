@@ -3,7 +3,8 @@ import User from '../models/user.js';
 
 
 const taskIndexTracker = {};
-const callCounterTracker = {};  
+const callCounterTracker = {}; 
+
 
 export const createTask = async (req, res) => {
     try {
@@ -73,50 +74,39 @@ export const getTasksByUserName = async (req, res, next) => {
             });
         }
 
-        // Fetch all tasks assigned to the user's ID that are NOT completed
+        // Fetch tasks assigned to the user that are either pending or in-progress
         const tasks = await Task.find({ 
             assignedUser: user.name, 
-            status: { $ne: 'completed' }  // Filter out completed tasks
-        }).select('taskName description priority startDate endDate'); // Only fetch specific fields
+            status: { $in: ['Pending', 'In progress'] }  // Fetch only tasks with 'pending' or 'in progress' status
+        }).select('taskName description priority startDate endDate status'); // Only fetch specific fields
 
-        // Check if there are tasks
+        // Check if there are tasks (either pending or in-progress)
         if (tasks.length === 0) {
             return res.status(200).json({
                 success: true,
                 message: `No pending or in-progress tasks assigned to user "${userName}".`,
+                total_tasks: 0,
                 data: []
             });
         }
 
-        // Initialize task index and call counter for this user if not already tracked
+        // Initialize task index for this user if not already tracked
         if (!taskIndexTracker[userName]) {
             taskIndexTracker[userName] = 0;
-        }
-        if (!callCounterTracker[userName]) {
-            callCounterTracker[userName] = 0;
-        }
-
-        // Check if the API has been called 5 times for this user
-        if (callCounterTracker[userName] >= 5) {
-            // Reset the counters after reaching 5 calls
-            taskIndexTracker[userName] = 0;  // Reset task index
-            callCounterTracker[userName] = 0;  // Reset call counter
-
-            return res.status(200).json({
-                success: true,
-                message: `You have reached the maximum of 5 task retrievals for user "${userName}". No more tasks will be shown. Counters have been reset.`,
-                data: []
-            });
         }
 
         // Get the current task index
         let currentIndex = taskIndexTracker[userName];
 
-        // If the current index is greater than or equal to the number of tasks, return a message that all tasks have been displayed
+        // If the current index is greater than or equal to the number of tasks, return a message that all tasks have been displayed and reset the counter
         if (currentIndex >= tasks.length) {
+            // Reset the task index for the user to allow restarting
+            taskIndexTracker[userName] = 0;
+
             return res.status(200).json({
                 success: true,
-                message: `All tasks have been displayed for user "${userName}".`,
+                message: `All pending or in-progress tasks have been displayed for user "${userName}".`,
+                total_tasks: tasks.length,
                 data: []  // No tasks are returned because all have been displayed
             });
         }
@@ -124,14 +114,14 @@ export const getTasksByUserName = async (req, res, next) => {
         // Fetch the task at the current index
         const task = tasks[currentIndex];
 
-        // Increment the task index and call counter for the next API call
+        // Increment the task index for the next API call
         taskIndexTracker[userName]++;
-        callCounterTracker[userName]++;
 
-        // Return the task
+        // Return the task with a message indicating the total number of tasks
         res.status(200).json({
             success: true,
-            message: `Task ${currentIndex + 1} of ${tasks.length} assigned to user "${userName}" retrieved successfully.`,
+            message: `Task ${currentIndex + 1} of ${tasks.length} pending or in-progress tasks assigned to user "${userName}" retrieved successfully.`,
+            total_tasks: tasks.length,  // Show how many pending/in-progress tasks the user has
             data: task
         });
 
