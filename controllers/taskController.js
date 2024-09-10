@@ -58,9 +58,9 @@ export const deleteTask = async (req, res) => {
 //
 export const getTasksByUserName = async (req, res, next) => {
     try {
-        const { userName } = req.query;  // Fetch the userName from the query parameter
+        const { userName, limit } = req.query;  // Fetch userName and limit from query parameters
 
-        //  Check if the user exists by userName
+        // Check if the user exists by userName
         const user = await User.findOne({ name: userName });
         if (!user) {
             return res.status(404).json({
@@ -68,11 +68,10 @@ export const getTasksByUserName = async (req, res, next) => {
                 message: `User with the name "${userName}" not found`
             });
         }
+        const taskLimit = parseInt(limit) > 0 ? parseInt(limit) : 5;
 
-        // Fetch all tasks assigned to the user's ID
-        const tasks = await Task.find({ assignedUser: user.name });
-
-        //  If no tasks are assigned, return an appropriate message
+        // Fetch tasks assigned to the user's ID, limiting the results
+        const tasks = await Task.find({ assignedUser: user.name }).limit(taskLimit);
         if (tasks.length === 0) {
             return res.status(200).json({
                 success: true,
@@ -80,18 +79,18 @@ export const getTasksByUserName = async (req, res, next) => {
                 data: []
             });
         }
-
-        //  Return the tasks assigned to the user
         res.status(200).json({
             success: true,
             message: `Tasks assigned to user "${userName}" retrieved successfully.`,
             data: tasks
         });
-
     } catch (error) {
         next(error);
     }
 };
+
+
+
 
 export const updateTaskStatusAndHours = async (req, res) => {
     try {

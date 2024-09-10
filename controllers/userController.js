@@ -80,11 +80,6 @@ export const checkUserExists = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: `Welcome ${name}.`,
-            data: {
-                name: user.name,
-                email: user.email,
-                userGroup: user.userGroup
-            }
         });
 
     } catch (error) {

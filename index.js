@@ -10,14 +10,8 @@ import userGroupRoutes from './routes/userGroupRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
 import ownerRoutes from './routes/ownerRoute.js'
-import userInformationRoutes from './routes/userInformationRoutes.js'
-
-
 dotenv.config();
-
-
 const app = express();
-
 // Middleware
 app.use(express.json());
 app.use(cors());
@@ -30,7 +24,6 @@ app.use('/api/userGroups', userGroupRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', assignmentRoutes);
 app.use('/api/owners', ownerRoutes);
-app.use('/api/userInformation', userInformationRoutes);
 
 app.get("/",(req,res)=>{
     res.send("backend")
