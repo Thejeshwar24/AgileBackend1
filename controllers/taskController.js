@@ -106,7 +106,7 @@ export const getTasksByUserName = async (req, res, next) => {
 
             return res.status(200).json({
                 success: true,
-                message: `You have reached the maximum of 5 task retrievals for user "${userName}". No more tasks will be shown. Counters have been reset.`,
+                message: `You have reached the maximum of 5 task retrievals for a user.`,
                 data: []
             });
         }
