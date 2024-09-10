@@ -35,5 +35,5 @@ const UserInformationSchema = new mongoose.Schema({
 });
 
 // Export the UserInformation model
-const UserInformation = mongoose.model('UserInformation', UserInformationSchema);
-export default UserInformation;
+const userInformation = mongoose.model('userInformation', UserInformationSchema);
+export default userInformation;
