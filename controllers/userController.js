@@ -72,14 +72,14 @@ export const checkUserExists = async (req, res, next) => {
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: `User with the name "${name}" not found`
+                message: `User not found.`
             });
         }
 
         // Step 2: If the user exists, return success message
         res.status(200).json({
             success: true,
-            message: `Welcome "${name}".`,
+            message: `Welcome ${name}.`,
             data: {
                 name: user.name,
                 email: user.email,

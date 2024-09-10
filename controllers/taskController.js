@@ -93,4 +93,34 @@ export const getTasksByUserName = async (req, res, next) => {
     }
 };
 
+export const updateTaskStatusAndHours = async (req, res) => {
+    try {
+        const { id } = req.params;  // Task ID from the URL
+        const { status, totalHrs } = req.body;  // Fields to be updated
+
+        // Find the task by ID and update the status and total hours
+        const updatedTask = await Task.findByIdAndUpdate(
+            id, 
+            { 
+                status: status || 'pending',  // Update status, default to pending if not provided
+                totalHrs: totalHrs || 0       // Update total hours, default to 0 if not provided
+            }, 
+            { new: true, runValidators: true }  // Return the updated document and validate the data
+        );
+
+        if (!updatedTask) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Task updated successfully',
+            data: updatedTask
+        });
+    } catch (error) {
+        res.status(400).json({ message: 'Error updating task', error: error.message });
+    }
+};
+
+
 

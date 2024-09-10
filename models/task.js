@@ -12,6 +12,15 @@ const taskSchema = new mongoose.Schema({
     estimationPoints: Number,
     startDate: Date,
     endDate: Date,
+    status: { 
+        type: String, 
+        enum: ['Pending', 'In progress', 'Completed'], 
+        default: 'Pending' // Default value when a new task is created
+    },
+    totalHrs: {
+        type: Number,
+        default: 0 // Default value is 0 when a new task is created
+    }
 });
 
 const Task = mongoose.model('Task', taskSchema);
