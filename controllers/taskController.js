@@ -77,7 +77,7 @@ export const getTasksByUserName = async (req, res, next) => {
         // Fetch tasks assigned to the user that are either pending or in-progress
         const tasks = await Task.find({ 
             assignedUser: user.name, 
-            status: { $in: ['Pending', 'In progress'] }  // Fetch only tasks with 'pending' or 'in progress' status
+            status: { $in: ['Pending', 'In progress'] }  // Fetch only tasks with 'Pending' or 'In progress' status
         }).select('taskName description priority startDate endDate status'); // Only fetch specific fields
 
         // Check if there are tasks (either pending or in-progress)
@@ -90,9 +90,25 @@ export const getTasksByUserName = async (req, res, next) => {
             });
         }
 
-        // Initialize task index for this user if not already tracked
+        // Initialize task index and call counter for this user if not already tracked
         if (!taskIndexTracker[userName]) {
             taskIndexTracker[userName] = 0;
+        }
+        if (!callCounterTracker[userName]) {
+            callCounterTracker[userName] = 0;
+        }
+
+        // Check if the API has been called 5 times for this user
+        if (callCounterTracker[userName] >= 5) {
+            // Reset the counters after reaching 5 calls
+            taskIndexTracker[userName] = 0;  // Reset task index
+            callCounterTracker[userName] = 0;  // Reset call counter
+
+            return res.status(200).json({
+                success: true,
+                message: `You have reached the maximum of 5 task retrievals for user "${userName}". No more tasks will be shown. Counters have been reset.`,
+                data: []
+            });
         }
 
         // Get the current task index
@@ -114,8 +130,9 @@ export const getTasksByUserName = async (req, res, next) => {
         // Fetch the task at the current index
         const task = tasks[currentIndex];
 
-        // Increment the task index for the next API call
+        // Increment the task index and call counter for the next API call
         taskIndexTracker[userName]++;
+        callCounterTracker[userName]++;
 
         // Return the task with a message indicating the total number of tasks
         res.status(200).json({
