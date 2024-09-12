@@ -59,16 +59,18 @@ export const deleteTask = async (req, res) => {
 export const updateTaskStatusAndHours = async (req, res) => {
     try {
         const { id } = req.params;  // Task ID from the URL
-        const { status, totalHrs } = req.body;  // Fields to be updated
+        const { status, totalHrs } = req.query;  // Fetch from query parameters
 
-        // Find the task by ID and update the status and total hours
+        // Prepare update object dynamically
+        const updateData = {};
+        if (status) updateData.status = status;
+        if (totalHrs !== undefined) updateData.totalHrs = totalHrs;
+
+        // Find the task by ID and update only the provided fields
         const updatedTask = await Task.findByIdAndUpdate(
             id, 
-            { 
-                status: status || 'pending',  // Update status, default to pending if not provided
-                totalHrs: totalHrs || 0       // Update total hours, default to 0 if not provided
-            }, 
-            { new: true, runValidators: true }  // Return the updated document and validate the data
+            updateData,  // Only update the fields that are provided
+            { new: true, runValidators: true }  // Return the updated document and validate
         );
 
         if (!updatedTask) {
