@@ -90,13 +90,6 @@ export const getTasksByUserNameWithStatus = async (req, res) => {
     try {
         const { userName } = req.query;  // Fetch userName from query parameters
 
-        // Define priority mapping if necessary (only if priority is stored as string)
-        const priorityOrder = {
-            'High': 1,
-            'Medium': 2,
-            'Low': 3
-        };
-
         // Fetch all tasks assigned to the user
         const allTasks = await Task.find({
             assignedUser: userName  // Fetch tasks assigned to the user
@@ -109,7 +102,10 @@ export const getTasksByUserNameWithStatus = async (req, res) => {
                 message: `No tasks assigned to user "${userName}".`,
                 total_tasks: 0,
                 pending_in_progress_tasks: 0,
-                tasks: []
+                tasks: [],
+                high_priority: 0,
+                medium_priority: 0,
+                low_priority: 0
             });
         }
 
@@ -121,13 +117,21 @@ export const getTasksByUserNameWithStatus = async (req, res) => {
         .select('taskName description priority startDate endDate status')  // Only fetch specific fields
         .sort({ priority: 1 });  // Sort tasks by priority (highest first)
 
+        // Count tasks based on priority (High, Medium, Low)
+        const highPriorityCount = tasks.filter(task => task.priority === 'High').length;
+        const mediumPriorityCount = tasks.filter(task => task.priority === 'Medium').length;
+        const lowPriorityCount = tasks.filter(task => task.priority === 'Low').length;
+
         // Check if there are tasks that are pending or in progress
         if (tasks.length === 0) {
             return res.status(200).json({
                 success: true,
-                message: `User "${userName}" has no pending or in-progress tasks.`,
+                message: `You have no pending or in-progress tasks.`,
                 total_tasks: allTasks.length,  // Total tasks assigned to the user
                 pending_in_progress_tasks: 0,  // Tasks that are not completed
+                high_priority: highPriorityCount,
+                medium_priority: mediumPriorityCount,
+                low_priority: lowPriorityCount,
                 tasks: []
             });
         }
@@ -135,10 +139,13 @@ export const getTasksByUserNameWithStatus = async (req, res) => {
         // Return the tasks with a message indicating total task count and non-completed task count
         res.status(200).json({
             success: true,
-            message: `User "${userName}" has ${tasks.length} pending or in-progress tasks out of ${allTasks.length} total tasks assigned.`,
+            message: `You have ${tasks.length} pending or in-progress tasks out of ${allTasks.length} total tasks assigned.`,
             total_tasks: allTasks.length,  // Total tasks assigned to the user
             pending_in_progress_tasks: tasks.length,  // Tasks that are not completed
-            tasks: tasks
+            high_priority: highPriorityCount,  // Number of high priority tasks
+            medium_priority: mediumPriorityCount,  // Number of medium priority tasks
+            low_priority: lowPriorityCount,  // Number of low priority tasks
+            tasks: tasks  // The task list
         });
 
     } catch (error) {
