@@ -14,9 +14,7 @@ dotenv.config();
 const app = express();
 // Middleware
 app.use(express.json());
-app.use(cors({
-    origin: 'https://main.djm243mzt7mr7.amplifyapp.com'
-}));
+app.use(cors());
 
 // Routes
 app.use('/api/epics', epicRoutes);
