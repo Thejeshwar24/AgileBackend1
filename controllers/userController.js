@@ -2,16 +2,37 @@ import User from '../models/user.js';
 // import Story from '../models/story.js';
 // import Task from '../models/task.js';
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
     try {
+        const { name, email, whatsappNumber } = req.body;
+
+        // Check if email or WhatsApp number already exists
+        const existingUser = await User.findOne({
+            $or: [{ email: email }, { whatsappNumber: whatsappNumber }]
+        });
+
+        if (existingUser) {
+            let errorMessage = 'User already exists with ';
+            if (existingUser.email === email) {
+                errorMessage += 'this email';
+            }
+            if (existingUser.whatsappNumber === whatsappNumber) {
+                errorMessage += existingUser.email === email ? ' and WhatsApp number' : 'this WhatsApp number';
+            }
+            return res.status(400).send({ error: errorMessage });
+        }
+
+        // Create new user
         const user = new User(req.body);
         await user.save();
         res.status(201).send(user);
     } catch (err) {
-        res.status(400).send({ error: err.message });
-        err.status = 400;
-        err.message = 'Failed to create user';
-        next(err);
+        console.error('Error creating user:', err);
+        if (!err.status) {
+            err.status = 500;
+            err.message = 'Failed to create user';
+        }
+        res.status(err.status).send({ error: err.message });
     }
 };
 
