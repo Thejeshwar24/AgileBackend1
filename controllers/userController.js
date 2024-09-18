@@ -15,6 +15,47 @@ export const createUser = async (req, res) => {
     }
 };
 
+export const getUserByWhatsappNumber = async (req, res, next) => {
+    try {
+        const { whatsappNumber } = req.query;  // Get WhatsApp number from query parameter
+
+        // Find user by WhatsApp number
+        const user = await User.findOne({ whatsappNumber: whatsappNumber }).populate('userGroup');
+
+        // If user not found
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                invalid_message: `No user found with WhatsApp number: ${whatsappNumber}`
+            });
+        }
+
+        // Prepare user data
+        const userData = {
+            name: user.name,
+            email: user.email,
+            whatsappNumber: user.whatsappNumber,
+            userGroup: user.userGroup ? user.userGroup.name : 'No group assigned'
+        };
+
+        // Send response
+        res.status(200).json({
+            success: true,
+            message: 'User found successfully.',
+            welcome_message:`Welcome ${user.name}.`,
+            data: userData
+        });
+    } catch (error) {
+        // Handle error
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching user by WhatsApp number.',
+            error: error.message
+        });
+        next(error);
+    }
+};
+
 export const getUsers = async (req, res) => {
     try {
         const users = await User.find().populate('userGroup');
